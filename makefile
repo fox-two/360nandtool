@@ -1,8 +1,8 @@
 CC = g++
 CFLAGS = -c -Os
-SOURCES =  main.cpp SPI_Interface_software.cpp NandReader.cpp
+SOURCES =  main.cpp SPI_Interface_software.cpp NandReader.cpp config.cpp
 OBJECTS = $(SOURCES:.cpp=.o)
-EXECUTABLE = x360nanddump
+EXECUTABLE = nand360tool
 LINKER = -lgpiod
 
 all: $(OBJECTS) $(EXECUTABLE)

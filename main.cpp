@@ -7,18 +7,7 @@
 #include <fstream>
 #include <cstring>
 #include "SPI_Interface_software.h"
-
-void print_hex_dump(uint8_t* data, int q)
-{
-    for(int i=0; i < q; i++)
-    {
-        if((i % 16) == 0)
-            printf("\n");
-        printf("%02X ", data[i]);
-    }
-    printf("\n");
-}
-
+#include "config.h"
 
 std::chrono::steady_clock::time_point start_time;
 std::fstream output_file;
@@ -69,11 +58,17 @@ void show_usage(const char* command_name)
     printf("\nExamples:\n");
     printf("To read 16mb to dump.bin: %s -s 16 -o dump.bin\n", command_name);
     printf("Write dump file back to NAND: %s -i dump.bin\n", command_name);
+    printf("Write only the first 3mb: %s -i dump.bin -s 3\n", command_name);
 }
 
-int dude();
 int main(int argc, char* argv[])
 { 
+    auto pin_config = load_pin_config();
+
+    for(auto& a : pin_config)
+    {
+        printf("%s: %i\n", a.first.c_str(), a.second);
+    }
     int size_in_megabytes = 0;
     bool ignore_ecc_errors = false;
     const char* output_filename = nullptr;
@@ -132,7 +127,13 @@ int main(int argc, char* argv[])
     }
     else if(input_filename != nullptr)
     {
-        XSPI_Interface_software spi_interface("gpiochip0", 24, 25, 8, 11, 10, 9);
+        XSPI_Interface_software spi_interface("gpiochip0", 
+                                              pin_config["pin_EJ"], 
+                                              pin_config["pin_XX"], 
+                                              pin_config["pin_SS"], 
+                                              pin_config["pin_SCK"],  
+                                              pin_config["pin_MOSI"], 
+                                              pin_config["pin_MISO"]);
         NandReader reader(spi_interface);
         try
         {
